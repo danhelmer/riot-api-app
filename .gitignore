@@ -46,3 +46,7 @@ Thumbs.db
 # ===============================
 *.tar
 docker-compose.override.yml
+
+
+
+Riot-app-keypair.pem
