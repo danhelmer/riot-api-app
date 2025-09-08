@@ -9,26 +9,28 @@ on:
 jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
+    runs-on: self-hosted   # <-- runs directly on your EC2 runner
     steps:
       - uses: actions/checkout@v3
 
-      - name: Add SSH key
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+      - name: Pull latest backend image
+        run: docker pull ${{ secrets.DOCKER_USERNAME }}/riot-backend:latest
 
-      - name: Deploy to EC2
+      - name: Pull latest frontend image
+        run: docker pull ${{ secrets.DOCKER_USERNAME }}/riot-frontend:latest
+
+      - name: Stop old backend container
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            docker pull ${{ secrets.DOCKER_USERNAME }}/riot-backend:latest
-            docker pull ${{ secrets.DOCKER_USERNAME }}/riot-frontend:latest
+          docker stop riot-backend || true
+          docker rm riot-backend || true
 
-            # Stop old containers
-            docker stop riot-backend || true && docker rm riot-backend || true
-            docker stop riot-frontend || true && docker rm riot-frontend || true
+      - name: Stop old frontend container
+        run: |
+          docker stop riot-frontend || true
+          docker rm riot-frontend || true
 
-            # Start new ones
-            docker run -d --name riot-backend -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/riot-backend:latest
-            docker run -d --name riot-frontend -p 80:80 ${{ secrets.DOCKER_USERNAME }}/riot-frontend:latest
-          EOF
+      - name: Start backend container
+        run: docker run -d --name riot-backend -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/riot-backend:latest
+
+      - name: Start frontend container
+        run: docker run -d --name riot-frontend -p 80:80 ${{ secrets.DOCKER_USERNAME }}/riot-frontend:latest
