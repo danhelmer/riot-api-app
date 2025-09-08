@@ -6,6 +6,7 @@ function SearchBar() {
   const [result, setResult] = useState(null);
 
   const searchSummonerPuuid = async () => {
+    console.log("-<<<<<<<-")
     try {
       const res = await fetch(`http://localhost:3000/summoner/${name}/${tag}`);
       const data = await res.json();
