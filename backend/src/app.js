@@ -5,11 +5,16 @@ import cors from "cors";
 
 dotenv.config();
 const app = express();
-app.use(cors());
+
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true
+}));
+
+app.use(express.json());
 
 const RIOT_API_KEY = process.env.RIOT_API_KEY;
 
-// Example route: get summoner puuid by name and tag
 app.get("/summoner/:name/:tag", async (req, res) => {
   try {
     const { name, tag } = req.params;
@@ -26,8 +31,8 @@ app.get("/summoner/:name/:tag", async (req, res) => {
 app.get("/health", (req, res) => {
   res.status(200).json({
     status: "ok",
-    uptime: process.uptime(),       // seconds since server started
-    timestamp: Date.now()           // current server time
+    uptime: process.uptime(),
+    timestamp: Date.now()
   });
 });
 

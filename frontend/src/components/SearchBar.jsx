@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 function SearchBar() {
-  const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+  const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001';
 
   const [name, setName] = useState("");
   const [tag, setTag] = useState("");
